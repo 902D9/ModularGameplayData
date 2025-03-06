@@ -6,6 +6,7 @@
 
 #include "ModularInputModifiers.generated.h"
 
+class USaveGame;
 /**
 *  Scales input based on a double property in the SharedUserSettings.
 */
@@ -38,6 +39,8 @@ public:
 
 protected:
 	virtual FInputActionValue ModifyRaw_Implementation(const UEnhancedPlayerInput* PlayerInput, FInputActionValue CurrentValue, float DeltaTime) override;
+
+	USaveGame* LoadOrCreateSettingsTemp(const ULocalPlayer* LocalPlayer);
 
 	/** FProperty Cache that will be populated with any found FProperty's on the settings class so that we don't need to look them up each frame. */
 	TArray<const FProperty*> PropertyCache;

@@ -2,6 +2,7 @@
 
 #include "EnhancedPlayerInput.h"
 #include "GameFramework/SaveGame.h"
+#include "Kismet/GameplayStatics.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(ModularInputModifiers)
 
@@ -30,11 +31,17 @@ FInputActionValue UModularSettingBasedScalar::ModifyRaw_Implementation(const UEn
 	{
 		if (const ULocalPlayer* LocalPlayer = ModularInputModifiersHelpers::GetLocalPlayer(PlayerInput))
 		{
+			
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 			/** @todo Split this class between local, device UUID, and shared settings. */
 			// const UClass* SettingsClass = UModularSettingsShared::StaticClass();
 			ULocalPlayerSaveGame* SharedSettings = ULocalPlayerSaveGame::LoadOrCreateSaveGameForLocalPlayer(ULocalPlayerSaveGame::StaticClass(),
 				LocalPlayer, SHARED_SETTINGS_SLOT_NAME);
 			const UClass* SettingsClass = ULocalPlayerSaveGame::StaticClass();
+#else
+			const UClass* SettingsClass = USaveGame::StaticClass();
+			USaveGame* SharedSettings = LoadOrCreateSettingsTemp(LocalPlayer);
+#endif
 
 			const bool bHasCachedProperty = PropertyCache.Num() == 3;
 
@@ -72,4 +79,24 @@ FInputActionValue UModularSettingBasedScalar::ModifyRaw_Implementation(const UEn
 	}
 
 	return CurrentValue;
+}
+
+USaveGame* UModularSettingBasedScalar::LoadOrCreateSettingsTemp(const ULocalPlayer* LocalPlayer)
+{
+	USaveGame* SharedSettings = nullptr;
+
+	// If the save game exists, load it.
+	if (UGameplayStatics::DoesSaveGameExist(SHARED_SETTINGS_SLOT_NAME, LocalPlayer->GetLocalPlayerIndex()))
+	{
+		SharedSettings = UGameplayStatics::LoadGameFromSlot(SHARED_SETTINGS_SLOT_NAME, LocalPlayer->GetLocalPlayerIndex());
+	}
+	
+	if (SharedSettings == nullptr)
+	{
+		SharedSettings = Cast<USaveGame>(UGameplayStatics::CreateSaveGameObject(USaveGame::StaticClass()));
+	}
+	
+	// The Initialize and ApplySettings methods are not executed, so no events are fired, and no properties are updated.
+
+	return SharedSettings;
 }
