@@ -9,7 +9,9 @@
 #include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 #include "UserSettings/EnhancedInputUserSettings.h"
+#endif
 
 #if WITH_EDITOR
 #include "Misc/DataValidation.h"
@@ -30,7 +32,9 @@ void UGameFeatureAction_AddInputContextMapping::OnGameFeatureRegistering()
 {
 	Super::OnGameFeatureRegistering();
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	RegisterInputMappingContexts();
+#endif
 }
 
 void UGameFeatureAction_AddInputContextMapping::OnGameFeatureActivating(FGameFeatureActivatingContext& Context)
@@ -57,10 +61,13 @@ void UGameFeatureAction_AddInputContextMapping::OnGameFeatureDeactivating(FGameF
 void UGameFeatureAction_AddInputContextMapping::OnGameFeatureUnregistering()
 {
 	Super::OnGameFeatureUnregistering();	
-	
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	UnregisterInputMappingContexts();
+#endif
 }
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 void UGameFeatureAction_AddInputContextMapping::RegisterInputMappingContexts()
 {
 	RegisterInputContextMappingsForGameInstanceHandle = FWorldDelegates::OnStartGameInstance.AddUObject(this,
@@ -169,10 +176,14 @@ void UGameFeatureAction_AddInputContextMapping::UnregisterInputMappingContextsFo
 		}
 	}
 }
-
+#endif
 
 #if WITH_EDITOR
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 EDataValidationResult UGameFeatureAction_AddInputContextMapping::IsDataValid(FDataValidationContext& Context) const
+#else
+EDataValidationResult UGameFeatureAction_AddInputContextMapping::IsDataValid(FDataValidationContext& Context)
+#endif
 {
 	EDataValidationResult Result = CombineDataValidationResults(Super::IsDataValid(Context), EDataValidationResult::Valid);
 

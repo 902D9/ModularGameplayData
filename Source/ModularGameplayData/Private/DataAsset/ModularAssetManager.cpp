@@ -57,7 +57,11 @@ UObject* UModularAssetManager::SynchronousLoadAsset(const FSoftObjectPath& Asset
 				FScopeLogTime::ScopeLog_Seconds);
 		}
 
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 		if (UAssetManager::IsInitialized())
+#else
+		if (UAssetManager::IsValid())
+#endif
 		{
 			return UAssetManager::GetStreamableManager().LoadSynchronous(AssetPath, false);
 		}

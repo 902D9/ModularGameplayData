@@ -53,7 +53,11 @@ public:
 
 	//~UObject interface
 #if WITH_EDITOR
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) const override;
+#else
+	virtual EDataValidationResult IsDataValid(class FDataValidationContext& Context) override;
+#endif
 #endif
 	//~End of UObject interface
 
@@ -68,7 +72,8 @@ private:
 	};
 
 	TMap<FGameFeatureStateChangeContext, FPerContextData> ContextData;
-	
+
+#if ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 3
 	/** Delegate for when the game instance is changed to register IMC's */
 	FDelegateHandle RegisterInputContextMappingsForGameInstanceHandle;
 
@@ -89,6 +94,7 @@ private:
 
 	/** Unregisters owned Input Mapping Contexts from the Input Registry Subsystem for a specified Local Player. This also gets called when a Local Player is removed. */
 	void UnregisterInputMappingContextsForLocalPlayer(ULocalPlayer* LocalPlayer);
+#endif
 
 	//~UGameFeatureAction_WorldActionBase interface
 	virtual void AddToWorld(const FWorldContext& WorldContext, const FGameFeatureStateChangeContext& ChangeContext) override;
